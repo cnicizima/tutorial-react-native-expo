@@ -13,6 +13,9 @@ export default function Logo() {
   );
 }
 
+//No native, usa o css interno no componente, nao tem css externo. 
+// precisa importar o StyleSheet do react-native
+
 const styles = StyleSheet.create({
     container:{
         display: 'flex',
