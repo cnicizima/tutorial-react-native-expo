@@ -29,6 +29,19 @@ export default function Card(props) {
 //     )}
 //passando com chaves na função, sem usar props.
 
+// export default function Card({avatar, children}) {
+//     return (
+//         <View style={styles.container}>
+//             <Text style={styles.texto}>{children}</Text>
+//             </View>
+//             < Image
+//                 style={styles.avatar}
+//                 source={avatar}
+//             />
+//         </View>
+//     )}
+{/* <Card avatar='https://github.com/cnicizima.png'>"olá tudo bem"</Card> o que está entre as tags é o children */}
+
 const styles = StyleSheet.create({
   container: {
     width: "80%",
