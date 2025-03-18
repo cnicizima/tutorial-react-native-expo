@@ -32,6 +32,7 @@ export default function App() {
               name={user.name}
               avatar={user.avatar}
               email={user.email}
+              id = {user.id}
             />
           }
           )}
