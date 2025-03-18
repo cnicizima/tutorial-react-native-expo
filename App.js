@@ -1,31 +1,41 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, ScrollView } from 'react-native';
-// import { Image } from 'expo-image';
-// importa algo from biblioteca react-native
-// import Logo from './src/components/Logo';
-// importa o componente logo, exportado com export default.
-
 import Header from './src/components/Header';
-import Card from './src/components/Card';
-import Product from './src/components/Product';
+import CardUser from './src/components/CardUser';
+import { useState, useEffect } from 'react';
 
 
 export default function App() {
+
+  const [users, setUsers] = useState([])
+
+  //useEffect é um hook que executar a função fetchUsers assim quando o componente for renderizado
+  useEffect(() => { //useEffect nao pode ser async por definiçao, por isso criamos uma array function para receber a funçao async await, pq fetch é async
+
+    const fetchUsers = async () => {
+      const result = await fetch('http://localhost:3000/user/list')
+      const data = await result.json() //pegando o array e transformando em json
+      console.log(data)
+      setUsers(data) // funçao que vai alterar o estado do array vazio users pelo que contem objetos da array data que vem do fetch. Vai setar o 'users' com a data que veio do backend.
+    }
+    fetchUsers()
+  }, [])
+
   return (
     <ScrollView style={styles.container}>
       <Header />
-      <Card avatar='https://github.com/cnicizima.png' message='Olá a todos' horario='Enviada há 8 minutos atrás' />
-      <Card avatar='https://github.com/m-shaka.png' message='Como vão?' horario='Enviada há 9 minutos atrás' />
-      <Card avatar='https://github.com/renancavichi.png' message='Bem e vocês' horario='Enviada há 10 minutos atrás' />
-
-      <View style={styles.productContainer}>
-        <Product product='https://www.divvino.com.br/blog/wp-content/uploads/2020/03/vinhos-para-o-outono.jpg' descricao='Vinho' preco='R$4,50' />
-        <Product product='https://www.portoaporto.com.br/blog/wp-content/uploads/2022/12/vinhos-ate-100-reais-natal.jpeg' descricao='Vinho' preco='R$4,50' />
-        <Product product='https://www.divvino.com.br/blog/wp-content/uploads/2020/03/vinhos-para-o-outono-como-escolher.jpg' descricao='Vinho' preco='R$4,50' />
-        <Product product='https://www.divvino.com.br/blog/wp-content/uploads/2020/03/vinhos-para-o-outono-como-escolher.jpg' descricao='Vinho' preco='R$4,50' />
+      <View style={styles.listUser}>
+        {
+          users.map((user) => { //users ja esta com os dados do fetch, entao podemos usar o map para percorrê-lo. Os dados em cada laço serão guardados em 'user', por isso podemos chamar user.id, etc.
+            return <CardUser
+              key={user.id} //o map no react sempre vai precisar de uma key para identificar cada elemento para ele poder se referenciar na hora de montar um card
+              name={user.name}
+              avatar={user.avatar}
+              email={user.email}
+            />
+          }
+          )}
       </View>
-
-      <StatusBar style="auto" />
     </ScrollView>
   );
 }
@@ -41,5 +51,10 @@ const styles = StyleSheet.create({
     gap: 20,
     flexWrap: 'wrap',
     justifyContent: "center"
+  },
+  listUser: {
+    gap: 20,
+    marginVertical: 20,
+    alignItems: 'center'
   }
 });
