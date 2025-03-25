@@ -1,98 +1,99 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, ScrollView, Text, TextInput, Button } from 'react-native';
 import Header from './src/components/Header';
-import CardUser from './src/components/CardUser';
+import CardProduct from './src/components/CardProduct';
 import { useState, useEffect } from 'react';
 
 
 export default function App() {
 
-  const [users, setUsers] = useState([])
+  const [products, setProducts] = useState([])
 
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [pass, setPass] = useState('')
-  const [avatar, setAvatar] = useState('')
+  const [preco, setPreco] = useState('')
+  const [tipo, setTipo] = useState('')
+  const [imagem, setImagem] = useState('')
 
-  const [userToEdit, setUserToEdit] = useState(null)
+  const [productToEdit, setProductToEdit] = useState(null)
 
-  //useEffect é um hook que executar a função fetchUsers assim quando o componente for renderizado
+  //useEffect é um hook que executar a função fetchProducts assim quando o componente for renderizado
   useEffect(() => { //useEffect nao pode ser async por definiçao, por isso criamos uma array function para receber a funçao async await, pq fetch é async
 
-    const fetchUsers = async () => {
-      const result = await fetch('http://localhost:3000/user/list')
+    const fetchProducts = async () => {
+      const result = await fetch('http://localhost:3000/product/list')
       const data = await result.json() //pegando o array e transformando em json
       console.log(data)
-      setUsers(data) // funçao que vai alterar o estado do array vazio users pelo que contem objetos da array data que vem do fetch. Vai setar o 'users' com a data que veio do backend.
+      setProducts(data) // funçao que vai alterar o estado do array vazio products pelo que contem objetos da array data que vem do fetch. Vai setar o 'products' com a data que veio do backend.
     }
-    fetchUsers()
+    fetchProducts()
   }, [])
 
 
-  //aqui, o useEffect observa o [userToEdit] e qdo ele é alterado, dispara a função
+  //aqui, o useEffect observa o [productToEdit] e qdo ele é alterado, dispara a função
   useEffect(() => {
-    console.log('userToEdit', userToEdit)
-    if (userToEdit !== null) {
-      const user = users.find((user) => user.id === userToEdit)
-      setName(user.name)
-      setEmail(user.email)
-      setPass(user.pass)
-      setAvatar(user.avatar)
+    console.log('productToEdit', productToEdit)
+    if (productToEdit !== null) {
+      const product = products.find((product) => product.id === productToEdit)
+      setName(product.name)
+      setPreco(product.preco)
+      setTipo(product.tipo)
+      setImagem(product.imagem)
     }
-  }, [userToEdit])
+  }, [productToEdit])
 
 
 
-  const handleCreateUser = async () => {
-    const result = await fetch('http://localhost:3000/user/', {
+  const handleCreateProduct = async () => {
+    const result = await fetch('http://localhost:3000/product/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json' //informa ao backend que está enviando os dados em json
       },
       body: JSON.stringify({ //transforma o objeto em json (fazer uma string json)
         name,
-        email,
-        pass,
-        avatar
+        preco,
+        tipo,
+        imagem
       })
     })
     const data = await result.json()
     console.log(data)
-    setUsers([...users, data.user]) // adiciona um novo usuario no final do array. '...users' significa que sao todos os usuarios do array. se quiser acrescentar no inicio da lista, seria so inverter ( data.user, ...users)
+    setProducts([...products, data.product]) // adiciona um novo usuario no final do array. '...products' significa que sao todos os usuarios do array. se quiser acrescentar no inicio da lista, seria so inverter ( data.product, ...products)
     setName('')
-    setEmail('')
-    setPass('')
-    setAvatar('') //limpa os campos do formulario apos o cadastro
+    setPreco('')
+    setTipo('')
+    setImagem('') //limpa os campos do formulario apos o cadastro
   }
 
-  const handleEditUser = async () => {
-    const result = await fetch(`http://localhost:3000/user/${userToEdit}`, {
+  const handleEditProduct = async () => {
+    const result = await fetch(`http://localhost:3000/product/${productToEdit}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json' //informa ao backend que está enviando os dados em json
       },
       body: JSON.stringify({ //transforma o objeto em json (fazer uma string json)
         name,
-        email,
-        pass,
-        avatar
+        preco,
+        tipo,
+        imagem
       })
     })
-    //aqui, pegamos a data que vem do backend, percorremos o array users, criando umnovo array chamado usersEditado, substituindo apenda o usuario editado, o restante retorna o mesmo
+    //aqui, pegamos a data que vem do backend, percorremos o array products, criando umnovo array chamado productsEditado, substituindo apenda o usuario editado, o restante retorna o mesmo
     const data = await result.json()
     console.log(data)
-    const usersEditado = users.map((user) => {
-      if (user.id === userToEdit) {
-        return data.user
+    const productsEditado = products.map((product) => {
+      if (product.id === productToEdit) {
+        return data.product
       }
-      return user
+      return product
     })
-    //aqui, setamos o array users com o novo array usersEditado
-    setUsers(usersEditado)
+    //aqui, setamos o array products com o novo array productsEditado
+    setProducts(productsEditado)
     setName('')
-    setEmail('')
-    setPass('')
-    setAvatar('') //limpa os campos do formulario apos o cadastro
+    setPreco('')
+    setTipo('')
+    setImagem('') //limpa os campos do formulario apos o cadastro
+    setProductToEdit(null)
   }
 
 
@@ -100,18 +101,19 @@ export default function App() {
   return (
     <ScrollView style={styles.container}>
       <Header />
-      <View style={styles.listUser}>
+      <View style={styles.listProduct}>
         {
-          users.map((user) => { //users ja esta com os dados do fetch, entao podemos usar o map para percorrê-lo. Os dados em cada laço serão guardados em 'user', por isso podemos chamar user.id, etc.
-            return <CardUser
-              key={user.id} //o map no react sempre vai precisar de uma key para identificar cada elemento para ele poder se referenciar na hora de montar um card
-              name={user.name}
-              avatar={user.avatar}
-              email={user.email}
-              id={user.id}
-              users={users} //passando o array de usuarios para o componente CardUser
-              setUsers={setUsers} //passando a funçao setUsers para o componente CardUser
-              setUserToEdit={setUserToEdit}
+          products.map((product) => { //products ja esta com os dados do fetch, entao podemos usar o map para percorrê-lo. Os dados em cada laço serão guardados em 'product', por isso podemos chamar product.id, etc.
+            return <CardProduct
+              key={product.id} //o map no react sempre vai precisar de uma key para identificar cada elemento para ele poder se referenciar na hora de montar um card
+              name={product.name}
+              imagem={product.imagem}
+              preco={product.preco}
+              tipo={product.tipo}
+              id={product.id}
+              products={products} //tipoando o array de usuarios para o componente CardProduct
+              setProducts={setProducts} //tipoando a funçao setProducts para o componente CardProduct
+              setProductToEdit={setProductToEdit}
             />
           }
           )}
@@ -119,12 +121,12 @@ export default function App() {
       <View>
         <Text style={styles.h1}>Cadastrar</Text>
         <TextInput style={styles.input} placeholder='Nome' value={name} onChangeText={setName}></TextInput>
-        <TextInput style={styles.input} placeholder='Email' value={email} onChangeText={setEmail}></TextInput>
-        <TextInput style={styles.input} placeholder='Senha' value={pass} onChangeText={setPass}></TextInput>
-        <TextInput style={styles.input} placeholder='Avatar' value={avatar} onChangeText={setAvatar}></TextInput>
+        <TextInput style={styles.input} placeholder='Preco' value={preco} onChangeText={setPreco}></TextInput>
+        <TextInput style={styles.input} placeholder='Tipo' value={tipo} onChangeText={setTipo}></TextInput>
+        <TextInput style={styles.input} placeholder='Imagem' value={imagem} onChangeText={setImagem}></TextInput>
         <View style={styles.boxButtons}>
-          <Button title='Cadastrar' onPress={ handleCreateUser } />
-          <Button title='Editar' onPress={ handleEditUser } />
+          <Button title='Cadastrar' onPress={ handleCreateProduct } />
+          <Button title='Editar' onPress={ handleEditProduct } />
         </View>
       </View>
     </ScrollView>
@@ -143,7 +145,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: "center"
   },
-  listUser: {
+  listProduct: {
     gap: 20,
     marginVertical: 20,
     alignItems: 'center'
