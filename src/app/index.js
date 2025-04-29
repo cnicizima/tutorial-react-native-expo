@@ -4,10 +4,11 @@ import Header from '../components/Header';
 import { useState, useEffect } from 'react';
 import CardUser from '../components/CardUser';
 import { Link, useRouter } from 'expo-router';
+import { useUsersStore } from '../stores/useUsersStore';
 
 export default function HomeScreen() {
 
-  const [users, setUsers] = useState([])
+  const { users, setUsers } = useUsersStore()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -114,7 +115,9 @@ export default function HomeScreen() {
       <Link href='/create' style={styles.link}><Text>Ir para Criar Usuário</Text></Link>
       {/* Exemplo navegação com router (criado com o hook useRouter) */}
       <Button style={styles.button} title='Criar Usuário' onPress={() => router.push('/create')} />
+
       <Button style={styles.button} title='Ir para Home' onPress={() => router.push('/home')} />
+
       <View>
         <Text style={styles.h1}>Cadastrar</Text>
         <TextInput style={styles.input} placeholder="Nome" value={name} onChangeText={setName} />

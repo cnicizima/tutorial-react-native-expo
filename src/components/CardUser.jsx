@@ -1,83 +1,92 @@
-import { Image } from 'expo-image';
-import { View, StyleSheet, Text, Pressable } from 'react-native';
+import { Image } from "expo-image";
+import { View, StyleSheet, Text, Pressable, Alert } from "react-native";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useUsersStore } from "../stores/useUsersStore"
+import { useRouter } from "expo-router";
 
-//esta users e setUsers sao variaveis de app que sao passadas para o componente User.
-export default function CardUser({ id, avatar, name, email, users, setUsers, setUserToEdit }) {
+export default function CardUser({id, avatar, name, email}) {
+    const { deleteUser: deleteUserStore, setUserToEditId  } = useUsersStore()
+    const router = useRouter()
 
     const deleteUser = async () => {
         const result = await fetch(`http://localhost:3000/user/${id}`, {
             method: 'DELETE'
         })
-        const data = await result.json()
-        console.log(data)
-        setUsers (users.filter((user) => user.id !== id))
-        //funçao filter vai montar um novo array com todos os usuarios que nao tem o id que foi passado para a funçao deleteUser
-        //e vai atualizar sozinho os cards renderizados no app
+        if(result.ok) {
+            const data = await result.json()
+            console.log(data)
+            deleteUserStore(id)
+        } else {
+            const error = await result?.json()
+            console.log('Erro ao deletar usuário', error?.message)
+            Alert.alert('Erro ao deletar usuário', error?.message || '')
+        }
     }
 
     const editUser = async () => {
-        setUserToEdit(id)
+        setUserToEditId(id)
+        router.push('/edit')
     }
 
     return (
         <View style={styles.card}>
-            <Image
+            <Image 
+                source={{ uri: avatar }}
                 style={styles.avatar}
-                source={avatar}
+                contentFit="cover"
             />
             <View style={styles.info}>
-                <Text style={styles.nome}>{name}</Text>
+                <Text style={styles.name}>{name}</Text>
                 <Text style={styles.email}>{email}</Text>
             </View>
-            <Pressable style={styles.trash} onPress={deleteUser}>
-                <FontAwesome name="trash-o" size={24} color="black" />  
-            </Pressable>
-            <Pressable style={styles.edit} onPress={editUser}>
-                <FontAwesome name="edit" size={24} color="black" />
-            </Pressable>
+            <View style={styles.actions}>
+                <Pressable onPress={editUser}>
+                    <FontAwesome name="edit" size={24} color="#4287f5" />
+                </Pressable>
+                <Pressable onPress={deleteUser}>
+                    <FontAwesome name="trash" size={24} color="#f54242" />
+                </Pressable>
+            </View>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     card: {
-        width: '80%',
-        minWidth: 200,
-        height: 90,
-        backgroundColor: '#CCC',
-        border: '1px solid #000',
-        borderRadius: 10,
-        padding: 10,
         flexDirection: 'row',
-        gap: 10
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        marginBottom: 8,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     avatar: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
-        backgroundColor: '#FFF'
-    },
-    name: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 10
-    },
-    email: {
-        color: '#999'
+        width: 50,
+        height: 50,
+        borderRadius: 25,
     },
     info: {
-        gap: 2,
-        marginTop: 14
+        flex: 1,
+        marginLeft: 16,
     },
-    trash: {
-        position: 'absolute',
-        right: 20,
-        top: 12
+    name: {
+        fontSize: 16,
+        fontWeight: 'bold',
     },
-    edit: {
-        position: 'absolute',
-        right: 60,
-        top: 14
+    email: {
+        fontSize: 14,
+        color: '#666',
+    },
+    actions: {
+        flexDirection: 'row',
+        gap: 16,
     }
-})
+});
