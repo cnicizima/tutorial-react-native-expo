@@ -1,11 +1,16 @@
 import {View, Text, StyleSheet} from 'react-native'
+import { useAuthStore } from '../../stores/useAuthStore'
+import { useRouter } from 'expo-router'
 
-export default function createScreen() {
+export default function HomeScreen() {
 
-     
+  const router = useRouter()
+  const { name } = useAuthStore()
+    
   return (
     <View style={styles.container}>
-        <Text style={styles.title}>HOME</Text>       
+        <Text style={styles.title}>Home</Text>
+        <Text style={styles.title}>Bem-vindo {name}</Text>
     </View>
   )
 }
@@ -16,11 +21,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5FCFF',
         marginTop: 20,
         justifyContent: 'center',
-        alignItems:'center'
+        alignItems: 'center'
     },
     title: {
         fontSize: 20,
         fontWeight: 'bold',
         margin: 10
-    }
+    },
 })
