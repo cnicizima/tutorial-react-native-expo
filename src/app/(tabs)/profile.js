@@ -5,11 +5,21 @@ import { useRouter } from 'expo-router'
 
 export default function ProfileScreen() {
     
-  const { logout } = useAuthStore()
+  const { logout, refreshToken } = useAuthStore() //vai mandar o refresh pro backend pra deslogar
   const router = useRouter()
 
   const handleLogout = async () => {
-    // Aqui você pode fazer a chamada para o logout na API
+    const result = await fetch('http://localhost:3000/auth/logout', {
+      method: 'DELETE',
+      header: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({refreshToken: refreshToken})
+    })
+    if (!result.ok) {
+      const data = await result?.json()
+      console.error("Logout falhou", data?.message)
+    }
     logout()
     return router.replace('/login')
   }
