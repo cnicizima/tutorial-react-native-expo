@@ -4,15 +4,21 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useUsersStore } from "../stores/useUsersStore"
 import { useRouter } from "expo-router";
 
-export default function CardUser({id, avatar, name, email}) {
-    const { deleteUser: deleteUserStore, setUserToEditId  } = useUsersStore()
+
+export default function CardUser({ id, avatar, name, email }) {
+    const { deleteUser: deleteUserStore, setUserToEditId } = useUsersStore()
+    const { accessToken, id: idUserLogged } = useUsersStore()
     const router = useRouter()
 
     const deleteUser = async () => {
         const result = await fetch(`http://localhost:3000/user/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}` // Adiciona o token de autenticação
+            }
         })
-        if(result.ok) {
+        if (result.ok) {
             const data = await result.json()
             console.log(data)
             deleteUserStore(id)
@@ -30,7 +36,7 @@ export default function CardUser({id, avatar, name, email}) {
 
     return (
         <View style={styles.card}>
-            <Image 
+            <Image
                 source={{ uri: avatar }}
                 style={styles.avatar}
                 contentFit="cover"
@@ -40,12 +46,16 @@ export default function CardUser({id, avatar, name, email}) {
                 <Text style={styles.email}>{email}</Text>
             </View>
             <View style={styles.actions}>
-                <Pressable onPress={editUser}>
-                    <FontAwesome name="edit" size={24} color="#4287f5" />
-                </Pressable>
-                <Pressable onPress={deleteUser}>
-                    <FontAwesome name="trash" size={24} color="#f54242" />
-                </Pressable>
+                {id === idUserLogged && (
+                    <>
+                        <Pressable onPress={editUser}>
+                            <FontAwesome name="edit" size={24} color="#4287f5" />
+                        </Pressable>
+                        <Pressable onPress={deleteUser}>
+                            <FontAwesome name="trash" size={24} color="#f54242" />
+                        </Pressable>
+                    </>
+                )}
             </View>
         </View>
     )
